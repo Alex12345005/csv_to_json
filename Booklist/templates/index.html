@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buchkatalog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .book-tile {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 15px;
+            background-color: lightgrey;
+            position: relative;
+        }
+        .book-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .book-author {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <form id="uploadForm">
+            <input type="file" id="jsonFile" accept=".json" class="form-control mb-3">
+            <input type="submit" value="Hochladen" class="btn btn-primary">
+        </form>
+
+        <div id="booksContainer" class="mt-5">
+            <!-- Hier werden die Bücherkacheln angezeigt -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var fileInput = document.getElementById('jsonFile');
+            var file = fileInput.files[0];
+            var formData = new FormData();
+            formData.append('jsonFile', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+            .then(data => {
+                loadBooks();
+            });
+        });
+
+        function loadBooks() {
+            fetch('/books')
+                .then(response => response.json())
+                .then(books => {
+                    var container = document.getElementById('booksContainer');
+                    container.innerHTML = '';
+                    books.forEach(book => {
+                        var tile = document.createElement('div');
+                        tile.className = 'book-tile';
+                        tile.innerHTML = `<div class="book-title">${book.Titel}</div><div class="book-author">${book.Autor}</div>`;
+                        container.appendChild(tile);
+                    });
+                });
+        }
+    </script>
+</body>
+</html>
